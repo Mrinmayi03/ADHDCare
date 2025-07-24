@@ -5,6 +5,19 @@
   text-align: center;
 }
 
+.body {
+  font-size: 300px; /* or whatever size you prefer */
+  font-family: Arial, sans-serif;
+}
+input,
+textarea,
+select,
+button {
+  font-size: 16px;
+  padding: 1px 5px;
+  margin: 6px;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
