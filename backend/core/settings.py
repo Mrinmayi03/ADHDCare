@@ -30,7 +30,10 @@ SECRET_KEY = "django-insecure-i&90hjh8yw(yos$_%0i0lcc#q$mpp*wi6et*u5yymxy$@m7uqs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "https://jubilant-computing-machine-5jj9p7wv64qfx99-8000.app.github.dev",
+    "localhost",
+]
 
 
 # Application definition
@@ -44,11 +47,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "adhd_backend",
     "rest_framework",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -124,3 +129,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CORS_ALLOWED_ORIGINS = [
+    "https://jubilant-computing-machine-5jj9p7wv64qfx99-5173.app.github.dev",
+]
