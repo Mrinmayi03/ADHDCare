@@ -30,13 +30,18 @@ class MedicationLog(models.Model):
 
 class MoodLog(models.Model):
     MOOD_CHOICES = [
-        ('happy', 'Happy'),
-        ('okay', 'Okay'),
-        ('sad', 'Sad'),
-        ('anxious', 'Anxious'),
-        ('angry', 'Angry'),
-        ('jittery', 'Jittery'),
-    ]
+    ('Happy', 'Happy'),
+    ('Calm', 'Calm / Content'),
+    ('Neutral', 'Neutral'),
+    ('Irritable', 'Irritable / Frustrated'),
+    ('Sad', 'Sad / Low'),
+    ('Anxious', 'Anxious / Overwhelmed'),
+    ('Restless', 'Restless / Jittery'),
+    ('BurntOut', 'Burnt Out'),
+    ('Stressed', 'Stressed / Panicky'),
+    ('Focused', 'Focused / On Track'),
+    ('Angry' , 'Angry'),
+]
     mood = models.CharField(max_length=20, choices=MOOD_CHOICES)
     note = models.TextField(blank=True)
     recorded_at = models.DateTimeField(null=True, blank=True)  # <-- editable field

@@ -14,7 +14,6 @@ class MedicationLogViewSet(viewsets.ModelViewSet):
     serializer_class = MedicationLogSerializer
 
 class MoodLogViewSet(viewsets.ModelViewSet):
-    queryset = MoodLog.objects.all()
-    # .order_by('-recorded_at')
+    queryset = MoodLog.objects.all().order_by('-recorded_at')
     serializer_class = MoodLogSerializer
 

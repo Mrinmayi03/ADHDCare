@@ -8,21 +8,42 @@ interface MoodLog {
   recorded_at: string;
 }
 
+const MOOD_SCORES: Record<string, number> = {
+  Happy: 2,
+  Focused: 2,
+  Calm: 1,
+  Neutral: 0,
+  Irritable: -1,
+  Anxious: -1,
+  Restless: -1,
+  Sad: -2,
+  BurntOut: -2,
+  Stressed: -2,
+};
+
 const MOOD_OPTIONS = [
-  { value: 'happy', label: 'Happy' },
-  { value: 'okay', label: 'Okay' },
-  { value: 'sad', label: 'Sad' },
-  { value: 'anxious', label: 'Anxious' },
-  { value: 'angry', label: 'Angry' },
-  { value: 'jittery', label: 'Jittery' },
+  { value: 'Happy', label: '😄 Happy' },
+  { value: 'Calm', label: '🙂 Calm / Content' },
+  { value: 'Neutral', label: '😐 Meh' },
+  { value: 'Irritable', label: '😠 Irritable / Frustrated' },
+  { value: 'Sad', label: '😢 Sad / Low' },
+  { value: 'Anxious', label: '😰 Anxious / Overwhelmed' },
+  { value: 'Restless', label: '😤 Restless / Jittery' },
+  { value: 'BurntOut', label: '😩 Burnt Out' },
+  { value: 'Stressed', label: '🤯 Stressed' },
+  { value: 'Focused', label: '🧠 Focused / On Track' },
+  { value: 'Angry' , label: '😡 Angry'},
 ];
 
 const MoodLog: React.FC = () => {
-  const [mood, setMood] = useState('happy');
+  const [mood, setMood] = useState('Happy');
   const [note, setNote] = useState('');
   const [recordedAt, setRecordedAt] = useState('');
   const [logs, setLogs] = useState<MoodLog[]>([]);
   const [editId, setEditId] = useState<number | null>(null);
+
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 
   useEffect(() => {
     fetchMoodLogs();
@@ -37,7 +58,7 @@ const MoodLog: React.FC = () => {
     const payload = {
       mood,
       note,
-      recorded_at: recordedAt ? new Date(recordedAt).toISOString() : null,
+      recorded_at: recordedAt || null,
     };
 
     if (editId !== null) {
@@ -49,7 +70,7 @@ const MoodLog: React.FC = () => {
       setLogs([...logs, response.data]);
     }
 
-    setMood('happy');
+    setMood('Happy');
     setNote('');
     setRecordedAt('');
   };
