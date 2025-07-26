@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, CartesianGrid
+  LineChart, Line, CartesianGrid, ReferenceLine
 } from 'recharts';
 import Select from 'react-select';
 
@@ -19,27 +19,27 @@ const SentimentCharts: React.FC = () => {
   const [fullCSV, setFullCSV] = useState<any[]>([]); // for trend chart
 
   useEffect(() => {
-    // fetch bar chart summary
     axios.get('/api/sentiment-summary/')
       .then(res => setData(res.data))
       .catch(err => console.error(err));
 
-    // fetch full CSV for trend analysis
     axios.get('/api/sentiment-raw/')
-  .then(res => setFullCSV(res.data))
-  .catch(err => console.warn("Trend data not found yet."));
+      .then(res => setFullCSV(res.data))
+      .catch(err => console.warn("Trend data not found yet."));
   }, []);
 
-  const medicationOptions = data.map(d => ({ value: d.medication, label: d.medication }));
+  const medicationOptions = data.map(d => ({
+    value: d.medication,
+    label: d.medication,
+  }));
 
   const handleSelection = (selected: any) => {
     setSelectedMeds(selected.map((s: any) => s.value));
   };
 
-  // For LineChart: simulate trends by comment batch
   const getTrendData = () => {
     const trendMap: { [med: string]: number[] } = {};
-    selectedMeds.forEach(med => trendMap[med] = []);
+    selectedMeds.forEach(med => (trendMap[med] = []));
 
     fullCSV.forEach((row: any) => {
       const { medication, sentiment } = row;
@@ -52,9 +52,9 @@ const SentimentCharts: React.FC = () => {
     const length = Math.max(...Object.values(trendMap).map(arr => arr.length));
     const result: any[] = [];
     for (let i = 0; i < length; i += 20) {
-      const obj: any = { batch: i / 20 + 1 };
+      const obj: any = { batch: i / 40 + 1 };
       selectedMeds.forEach(med => {
-        const slice = trendMap[med].slice(i, i + 20);
+        const slice = trendMap[med].slice(i, i + 40);
         obj[med] = slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
       });
       result.push(obj);
@@ -87,15 +87,23 @@ const SentimentCharts: React.FC = () => {
       />
 
       {selectedMeds.length > 0 && (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart data={getTrendData()}>
-            <CartesianGrid stroke="#ccc" />
-            <XAxis dataKey="batch" />
-            <YAxis />
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="batch" label={{ value: "Review Batch", position: "insideBottomRight", offset: -5 }} />
+            <YAxis domain={[-1, 1]} label={{ value: "Avg Sentiment", angle: -90, position: "insideLeft" }} />
             <Tooltip />
             <Legend />
+            <ReferenceLine y={0} stroke="#999" strokeDasharray="3 3" />
             {selectedMeds.map((med, i) => (
-              <Line key={med} type="monotone" dataKey={med} stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`} />
+              <Line
+                key={med}
+                type="monotone"
+                dataKey={med}
+                stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`}
+                strokeWidth={1}
+                dot={false}
+              />
             ))}
           </LineChart>
         </ResponsiveContainer>

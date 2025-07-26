@@ -23,7 +23,7 @@ const Medications: React.FC = () => {
   }, []);
 
   const fetchMeds = async () => {
-    const response = await api.get('/medications/');
+    const response = await api.get('/medicationlogs/');
     setMeds(response.data);
   };
 

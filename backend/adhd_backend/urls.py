@@ -6,6 +6,7 @@ from .views import (
     MoodLogViewSet,
     sentiment_summary,
     sentiment_csv_json,
+    wordcloud_data,
 )
 
 router = DefaultRouter()
@@ -17,4 +18,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('sentiment-summary/', sentiment_summary),       # bar chart
     path('sentiment-raw/', sentiment_csv_json),          # full CSV as JSON
+    path('wordcloud/', wordcloud_data),
 ]
