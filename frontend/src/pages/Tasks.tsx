@@ -1,125 +1,237 @@
-// Tasks.tsx
-import React, { useEffect, useState } from 'react';
-import api from '../api/axios';
+// src/pages/Tasks.tsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 interface Task {
   id: number;
   title: string;
+  notes: string;
+  priority: "low" | "medium" | "urgent";
   is_completed: boolean;
-  created_at: string;
-  priority: string;
-  notes?: string;
 }
 
-const Tasks: React.FC = () => {
+export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [title, setTitle] = useState('');
-  const [notes, setNotes] = useState('');
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [priority, setPriority] = useState('low');
-  const [editId, setEditId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  // form state (for "Add")
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "urgent">("low");
+  const [completed, setCompleted] = useState<boolean>(false);
+
+  // edit‐mode state (per‐field)
+  const [editTitle, setEditTitle] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editPriority, setEditPriority] = useState<"low" | "medium" | "urgent">("low");
+  const [editIsCompleted, setEditIsCompleted] = useState<boolean>(false);
+
+  const fetchTasks = () =>
+    axios
+      .get<Task[]>("/api/tasks/")
+      .then((res) => setTasks(res.data));
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const fetchTasks = async () => {
-    const response = await api.get('/tasks/');
-    setTasks(response.data);
-  };
-
-  const handleSubmit = async () => {
-    if (!title.trim()) return;
-
-    const payload = {
-      title,
-      is_completed: isCompleted,
-      priority,
-      notes,
-    };
-
-    if (editId !== null) {
-      const response = await api.put(`/tasks/${editId}/`, payload);
-      setTasks(tasks.map((task) => (task.id === editId ? response.data : task)));
-      setEditId(null);
-    } else {
-      const response = await api.post('/tasks/', payload);
-      setTasks([...tasks, response.data]);
-    }
-
-    setTitle('');
-    setNotes('');
-    setIsCompleted(false);
-    setPriority('low');
-  };
-
-  const handleEdit = (task: Task) => {
-    setTitle(task.title);
-    setNotes(task.notes || '');
-    setPriority(task.priority);
-    setIsCompleted(task.is_completed);
-    setEditId(task.id);
-  };
-
-  const handleDelete = async (id: number) => {
-    await api.delete(`/tasks/${id}/`);
-    setTasks(tasks.filter((task) => task.id !== id));
+  const handleAdd = () => {
+    axios
+      .post("/api/tasks/", {
+        title,
+        notes,
+        priority,
+        is_completed: completed,
+      })
+      .then(() => {
+        setTitle("");
+        setNotes("");
+        setPriority("low");
+        setCompleted(false);
+        fetchTasks();
+      });
   };
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h2>📝 Task Tracker</h2>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold flex items-center space-x-2">
+        <span>📝</span>
+        <span>Task Tracker</span>
+      </h1>
 
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-      />
+      {/* ─── Add Form ────────────────────────────────────────── */}
+      <div className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+          <label className="block text-sm font-medium">Title</label>
+          <input
+            className="mt-1 block w-full border rounded px-3 py-2"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium">Notes</label>
+          <textarea
+            className="mt-1 block w-full border rounded px-3 py-2"
+            rows={2}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Priority</label>
+          <select
+            className="mt-1 block w-full border rounded px-3 py-2"
+            value={priority}
+            onChange={(e) =>
+              setPriority(e.target.value as "low" | "medium" | "urgent")
+            }
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="urgent">Urgent</option>
+          </select>
 
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Notes"
-      />
+          <label className="mt-2 flex items-center space-x-2 text-sm">
+            <input
+              type="checkbox"
+              checked={completed}
+              onChange={(e) => setCompleted(e.target.checked)}
+            />
+            <span>Completed</span>
+          </label>
+        </div>
+        <div className="md:col-span-4 text-right">
+          <button
+            onClick={handleAdd}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded"
+          >
+            Add Task
+          </button>
+        </div>
+      </div>
 
-      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="urgent">Urgent</option>
-      </select>
+      {/* ─── Task List & Inline Edit ───────────────────────── */}
+      <div className="space-y-4">
+        {tasks.map((t) =>
+          editingId === t.id ? (
+            <div
+              key={t.id}
+              className="bg-yellow-50 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0"
+            >
+              <div className="flex-1 space-y-2">
+                {/* Title */}
+                <input
+                  className="w-full border rounded px-3 py-2"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                />
 
-      <label style={{ marginLeft: 10 }}>
-        <input
-          type="checkbox"
-          checked={isCompleted}
-          onChange={(e) => setIsCompleted(e.target.checked)}
-        />
-        Completed
-      </label>
+                {/* Notes */}
+                <textarea
+                  className="w-full border rounded px-3 py-2"
+                  rows={2}
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                />
 
-      <br />
-      <button onClick={handleSubmit}>
-        {editId !== null ? 'Update' : 'Add'} Task
-      </button>
+                {/* Priority */}
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={editPriority}
+                  onChange={(e) =>
+                    setEditPriority(e.target.value as "low" | "medium" | "urgent")
+                  }
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="urgent">Urgent</option>
+                </select>
 
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {tasks.map((task) => (
-          <li key={task.id}>
-            <strong>{task.title}</strong> | Priority: {task.priority} |{' '}
-            {task.is_completed ? '✅ Completed' : '⏳ Pending'}
-            {task.notes && <div>📝 {task.notes}</div>}
-            <button onClick={() => handleEdit(task)} style={{ marginLeft: 10 }}>
-              Edit
-            </button>
-            <button onClick={() => handleDelete(task.id)} style={{ marginLeft: 5 }}>
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+                {/* Completed (fully controlled!) */}
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={editIsCompleted}
+                    onChange={(e) => setEditIsCompleted(e.target.checked)}
+                  />
+                  <span>Completed</span>
+                </label>
+              </div>
+
+              {/* Save / Cancel */}
+              <div className="flex flex-col md:flex-row gap-2">
+                <button
+                  onClick={() =>
+                    axios
+                      .patch(`/api/tasks/${t.id}/`, {
+                        title:        editTitle,
+                        notes:        editNotes,
+                        priority:     editPriority,
+                        is_completed: editIsCompleted,
+                      })
+                      .then(() => {
+                        setEditingId(null);
+                        fetchTasks();
+                      })
+                  }
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="border px-4 py-2 rounded hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              key={t.id}
+              className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between"
+            >
+              <div>
+                <p className="font-semibold">{t.title}</p>
+                <p className="text-sm text-gray-600">{t.notes}</p>
+                <p className="mt-1 text-xs">
+                  Priority:{" "}
+                  <span className="capitalize">{t.priority}</span> |{" "}
+                  {t.is_completed ? (
+                    <span className="text-green-600">✅ Completed</span>
+                  ) : (
+                    <span className="text-yellow-600">⏳ Pending</span>
+                  )}
+                </p>
+              </div>
+              <div className="mt-4 md:mt-0 space-x-2">
+                <button
+                  onClick={() => {
+                    // prime the edit‐form with current values
+                    setEditingId(t.id);
+                    setEditTitle(t.title);
+                    setEditNotes(t.notes);
+                    setEditPriority(t.priority);
+                    setEditIsCompleted(t.is_completed);
+                  }}
+                  className="px-4 py-1 border rounded hover:bg-gray-50"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() =>
+                    axios.delete(`/api/tasks/${t.id}/`).then(fetchTasks)
+                  }
+                  className="px-4 py-1 border rounded hover:bg-gray-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
-};
-
-export default Tasks;
+}

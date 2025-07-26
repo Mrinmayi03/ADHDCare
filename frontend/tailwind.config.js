@@ -1,12 +1,18 @@
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-  "./index.html",
-  "./src/**/*.{js,ts,jsx,tsx}",
-],
+    "./index.html",
+    "./src/**/*.{js,jsx,ts,tsx}"
+  ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        calm: {
+          50: "#669b9bff",  // your custom pastel mint/teal
+        },
+      },
+    },
   },
   plugins: [],
-}
-
+};

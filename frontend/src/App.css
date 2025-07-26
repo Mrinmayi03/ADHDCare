@@ -8,6 +8,7 @@
 .body {
   font-size: 300px; /* or whatever size you prefer */
   font-family: Arial, sans-serif;
+  background-color: #14473b;
 }
 input,
 textarea,
@@ -52,4 +53,46 @@ button {
 
 .read-the-docs {
   color: #888;
+}
+
+/* overall page bg + center everything */
+.app-container {
+  background-color: #F3F0FF;   /* a gentle lavender-cream */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* nav stacked in the middle, with a little gap */
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;    /* one link per line */
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+/* link styles */
+.nav-link {
+  color: #5A3E85;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.nav-link.active {
+  text-decoration: underline;
+}
+
+/* your “page card” styling */
+.main-content {
+  background: #d17676;
+  width: 100%;
+  max-width: 800px;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 }

@@ -10,6 +10,8 @@ class MedicationLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicationLog
         fields = '__all__'
+        # tell DRF not to require this on input:
+        read_only_fields = ('taken_at',)
 
 class MoodLogSerializer(serializers.ModelSerializer):
     class Meta:
