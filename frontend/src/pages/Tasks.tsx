@@ -33,7 +33,7 @@ export default function Tasks() {
   }, []);
 
   const handleAdd = () => {
-    API.post("/api/tasks/", {
+    API.post("tasks/", {
       title,
       notes,
       priority,
@@ -206,7 +206,7 @@ export default function Tasks() {
                   Edit
                 </button>
                 <button
-                  onClick={() => API.delete(`/api/tasks/${t.id}/`).then(fetchTasks)}
+                  onClick={() => API.delete(`tasks/${t.id}/`).then(fetchTasks)}
                   className="px-4 py-1 border rounded hover:bg-gray-50"
                 >
                   Delete
