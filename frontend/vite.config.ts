@@ -10,4 +10,8 @@ export default defineConfig({
       '/static': 'https://jubilant-computing-machine-5jj9p7wv64qfx99-8000.app.github.dev',
     },
   },
+  build: {
+    sourcemap : true
+  }
+
 })
