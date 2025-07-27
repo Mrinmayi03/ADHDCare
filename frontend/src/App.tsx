@@ -1,6 +1,8 @@
 // src/App.tsx
+// import React, { type ReactNode, useContext } from 'react';
+// import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import React, { type ReactNode, useContext } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 
 import { AuthProvider, AuthContext } from './pages/AuthText';   // ← your context file
 import { TimerProvider }          from './pages/TimerContext';
@@ -27,12 +29,17 @@ function PrivateRoute({ children }: PrivateRouteProps) {
 // ──────────────────────────────────────────────────────────────────────────────
 
 
+// export default function App() {
+//   return (
+//     <AuthProvider>               {/* ← make auth state available */}
+//       <TimerProvider>            {/* ← your existing timer context */}
+//         <BrowserRouter>
+          // <div className="max-w-2xl mx-auto p-4">
 export default function App() {
-  return (
-    <AuthProvider>               {/* ← make auth state available */}
-      <TimerProvider>            {/* ← your existing timer context */}
-        <BrowserRouter>
-          <div className="max-w-2xl mx-auto p-4">
+   return (
+     <AuthProvider>
+       <TimerProvider>
+         <div className="max-w-2xl mx-auto p-4">
             <nav className="flex justify-center gap-6 mb-8">
               <NavLink to="/" end        className={({isActive})=>isActive?'underline':''}>Home</NavLink>
               <NavLink to="/tasks"      className={({isActive})=>isActive?'underline':''}>Tasks</NavLink>
@@ -74,8 +81,7 @@ export default function App() {
               </Route>
             </Routes>
           </div>
-        </BrowserRouter>
-      </TimerProvider>
-    </AuthProvider>
+        </TimerProvider>
+     </AuthProvider>
   );
 }
