@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "../api/axios";                          // ← EDITED
 import Select from "react-select";
 import D3WordCloud from "../pages/D3WordCloud";
 
@@ -15,8 +16,9 @@ const WordCloudView: React.FC = () => {
 
   // Fetch medication list for the dropdown
   useEffect(() => {
-    axios
-      .get("/api/sentiment-summary/")
+    // axios
+    //   .get("/api/sentiment-summary/")
+    api.get("sentiment-summary/")                         // ← EDITED
       .then((res) => setMeds(res.data.map((d: any) => d.medication)))
       .catch(console.error);
   }, []);
@@ -30,8 +32,9 @@ const WordCloudView: React.FC = () => {
     }
     const med = opt.value;
     setSelectedMed(med);
-    axios
-      .get(`/api/wordcloud/?med=${encodeURIComponent(med)}`)
+    // axios
+    //   .get(`/api/wordcloud/?med=${encodeURIComponent(med)}`)
+    api.get(`wordcloud/?med=${encodeURIComponent(med)}`)  // ← EDITED
       .then((res) => {
         // API returns { text: string, value: number }[]
         setWords(res.data);
@@ -81,3 +84,4 @@ const WordCloudView: React.FC = () => {
 };
 
 export default WordCloudView;
+

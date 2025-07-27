@@ -1,5 +1,7 @@
+// src/pages/MoodLogs.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "../api/axios";                                         // ← EDITED
 
 interface MoodLog {
   id: number;
@@ -23,20 +25,18 @@ const MOOD_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export default function MoodLogs() {
-  const [logs, setLogs] = useState<MoodLog[]>([]);
-  const [mood, setMood] = useState(MOOD_OPTIONS[0].value);
-  const [note, setNote] = useState("");
-  const [dateTime, setDateTime] = useState("");
-
-  // edit mode state
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editMood, setEditMood] = useState(MOOD_OPTIONS[0].value);
-  const [editNote, setEditNote] = useState("");
+  const [logs, setLogs]               = useState<MoodLog[]>([]);
+  const [mood, setMood]               = useState(MOOD_OPTIONS[0].value);
+  const [note, setNote]               = useState("");
+  const [dateTime, setDateTime]       = useState("");
+  const [editingId, setEditingId]     = useState<number | null>(null);
+  const [editMood, setEditMood]       = useState(MOOD_OPTIONS[0].value);
+  const [editNote, setEditNote]       = useState("");
   const [editDateTime, setEditDateTime] = useState("");
 
   const fetchLogs = () =>
-    axios
-      .get<MoodLog[]>("/api/moodlogs/")
+    // axios.get<MoodLog[]>("/api/moodlogs/")
+    api.get<MoodLog[]>("moodlogs/")                                  // ← EDITED
       .then((res) => setLogs(res.data));
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export default function MoodLogs() {
   }, []);
 
   const handleAdd = () => {
-    axios
-      .post("/api/moodlogs/", { mood, note, recorded_at: dateTime })
+    // axios.post("/api/moodlogs/", { mood, note, recorded_at: dateTime })
+    api.post("moodlogs/", { mood, note, recorded_at: dateTime })    // ← EDITED
       .then(fetchLogs)
       .catch((e) => {
         console.error(e.response?.data || e);
@@ -145,12 +145,12 @@ export default function MoodLogs() {
               <div className="flex flex-col md:flex-row gap-2">
                 <button
                   onClick={() =>
-                    axios
-                      .patch(`/api/moodlogs/${log.id}/`, {
-                        mood:         editMood,
-                        note:         editNote,
-                        recorded_at:  editDateTime,
-                      })
+                    // axios.patch(`/api/moodlogs/${log.id}/`, {
+                    api.patch(`moodlogs/${log.id}/`, {                  // ← EDITED
+                      mood:         editMood,
+                      note:         editNote,
+                      recorded_at:  editDateTime,
+                    })
                       .then(() => {
                         setEditingId(null);
                         fetchLogs();
@@ -174,7 +174,6 @@ export default function MoodLogs() {
               className="flex flex-col md:flex-row md:items-center justify-between"
             >
               <div>
-                {/* display emoji+label */}
                 <p className="font-semibold">
                   {
                     MOOD_OPTIONS.find((o) => o.value === log.mood)
@@ -200,7 +199,9 @@ export default function MoodLogs() {
                 </button>
                 <button
                   onClick={() =>
-                    axios.delete(`/api/moodlogs/${log.id}/`).then(fetchLogs)
+                    // axios.delete(`/api/moodlogs/${log.id}/`)
+                    api.delete(`moodlogs/${log.id}/`)                 // ← EDITED
+                      .then(fetchLogs)
                   }
                   className="px-4 py-1 border rounded hover:bg-gray-50"
                 >

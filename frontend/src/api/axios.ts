@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://jubilant-computing-machine-5jj9p7wv64qfx99-8000.app.github.dev/api/',
+  baseURL: import.meta.env.VITE_API_BASE,
   headers: {
     'Content-Type': 'application/json',
   }

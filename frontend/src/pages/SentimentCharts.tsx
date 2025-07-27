@@ -1,6 +1,7 @@
 // src/pages/SentimentCharts.tsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import api from '../api/axios';                                         // ← EDITED
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, CartesianGrid, ReferenceLine
@@ -19,11 +20,13 @@ const SentimentCharts: React.FC = () => {
   const [fullCSV, setFullCSV] = useState<any[]>([]); // for trend chart
 
   useEffect(() => {
-    axios.get('/api/sentiment-summary/')
+    // axios.get('/api/sentiment-summary/')
+    api.get('sentiment-summary/')                       // ← EDITED
       .then(res => setData(res.data))
       .catch(err => console.error(err));
 
-    axios.get('/api/sentiment-raw/')
+    // axios.get('/api/sentiment-raw/')
+    api.get('sentiment-raw/')                            // ← EDITED
       .then(res => setFullCSV(res.data))
       .catch(err => console.warn("Trend data not found yet."));
   }, []);
@@ -113,3 +116,4 @@ const SentimentCharts: React.FC = () => {
 };
 
 export default SentimentCharts;
+
