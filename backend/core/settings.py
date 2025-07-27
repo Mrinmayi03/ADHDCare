@@ -31,11 +31,10 @@ SECRET_KEY = "django-insecure-i&90hjh8yw(yos$_%0i0lcc#q$mpp*wi6et*u5yymxy$@m7uqs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "https://jubilant-computing-machine-5jj9p7wv64qfx99-8000.app.github.dev",
-    "localhost",
-]
+_allowed = os.environ.get("ALLOWED_HOSTS", "")
 
+# split on commas, strip out any stray whitespace, ignore empty bits
+ALLOWED_HOSTS = [h.strip() for h in _allowed.split(",") if h.strip()]
 
 # Application definition
 
