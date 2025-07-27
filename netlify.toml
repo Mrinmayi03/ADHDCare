@@ -1,14 +1,14 @@
 # netlify.toml
 [build]
-  # tell Netlify to cd into the frontend folder first
+  # run everything from within frontend/
   base    = "frontend"
-  # run your install + build there
-  command = "npm install && npm run build"
-  # then publish the generated dist/ folder
-  publish = "frontend/dist"
+  # npm ci is faster and more repeatable in CI
+  command = "npm ci && npm run build"
+  # after cd frontend, Vite builds into dist/
+  publish = "dist"
 
-# React Router single‐page‐app fallback:
+# single‑page‑app fallback so React Router works
 [[redirects]]
-  from     = "/*"
-  to       = "/index.html"
-  status   = 200
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
