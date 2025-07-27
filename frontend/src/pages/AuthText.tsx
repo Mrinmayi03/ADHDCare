@@ -33,7 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [token]);
 
   const login = async (username: string, password: string) => {
-    const { data } = await api.post('token/', { username, password });
+    const { data } = await api.post('/api/token/', { username, password });
     setToken(data.access);
     localStorage.setItem('jwt', data.access);
   };

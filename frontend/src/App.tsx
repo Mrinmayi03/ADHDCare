@@ -7,6 +7,7 @@ import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './pages/AuthText';   // ← your context file
 import { TimerProvider }          from './pages/TimerContext';
 import { Layout }                 from './pages/Layout';
+import Login from './pages/Login';
 
 import HomePage        from './pages/HomePage';
 import Tasks           from './pages/Tasks';
@@ -15,6 +16,7 @@ import Medications     from './pages/Medications';
 import MoodTrends      from './pages/MoodTrends';
 import SentimentCharts from './pages/SentimentCharts';
 import WordCloudView   from './pages/WordCloudView';
+import SignUpPage from './pages/SignUpPage';
 
 
 // ─── Typed PrivateRoute ───────────────────────────────────────────────────────
@@ -42,6 +44,9 @@ export default function App() {
          <div className="max-w-2xl mx-auto p-4">
             <nav className="flex justify-center gap-6 mb-8">
               <NavLink to="/" end        className={({isActive})=>isActive?'underline':''}>Home</NavLink>
+              <NavLink to="/signup" className={({isActive})=>isActive?'underline':''}>
+                Sign Up
+              </NavLink>
               <NavLink to="/tasks"      className={({isActive})=>isActive?'underline':''}>Tasks</NavLink>
               <NavLink to="/moodlogs"   className={({isActive})=>isActive?'underline':''}>Mood</NavLink>
               <NavLink to="/medicationlogs"
@@ -56,6 +61,8 @@ export default function App() {
               <Route element={<Layout />}>
                 {/* public */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/login"  element={<Login />} />
 
                 {/* protected */}
                 <Route path="/tasks" element={

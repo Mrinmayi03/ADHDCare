@@ -48,12 +48,17 @@ INSTALLED_APPS = [
     "adhd_backend",
     "rest_framework",
     "corsheaders",
+    "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = {
+    'DEAFULT_PAGINATION_CLASS': None,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
 }
 
