@@ -19,7 +19,7 @@ export default function Medications() {
   const [date, setDate] = useState<string>(today);
 
   const fetchMeds = () =>
-    API.get<Med[]>("/api/medicationlogs/")
+    API.get<Med[]>("medicationlogs/")
       .then((res) => setList(res.data))
       .catch((e) => console.error("Failed to fetch meds:", e));
 
@@ -28,7 +28,7 @@ export default function Medications() {
   }, []);
 
   const handleAdd = () => {
-    API.post("/api/medicationlogs/", {
+    API.post("medicationlogs/", {
       name,
       dose_mg,
       brand_name,
@@ -113,7 +113,7 @@ export default function Medications() {
                 Edit
               </button>
               <button
-                onClick={() => API.delete(`/api/medicationlogs/${m.id}/`).then(fetchMeds)}
+                onClick={() => API.delete(`medicationlogs/${m.id}/`).then(fetchMeds)}
                 className="px-4 py-1 border rounded hover:bg-gray-50"
               >
                 Delete
