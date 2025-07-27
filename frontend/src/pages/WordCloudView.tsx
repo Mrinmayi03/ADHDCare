@@ -1,3 +1,4 @@
+// src/pages/WordCloudView.tsx
 import React, { useEffect, useState } from "react";
 // import axios from "axios";
 import api from "../api/axios";                          // ← EDITED
@@ -9,6 +10,14 @@ interface WordFreq {
   value: number;
 }
 
+// ← EDITED: to handle possible paginated response
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 const WordCloudView: React.FC = () => {
   const [meds, setMeds] = useState<string[]>([]);
   const [selectedMed, setSelectedMed] = useState<string | null>(null);
@@ -16,10 +25,17 @@ const WordCloudView: React.FC = () => {
 
   // Fetch medication list for the dropdown
   useEffect(() => {
-    // axios
-    //   .get("/api/sentiment-summary/")
-    api.get("sentiment-summary/")                         // ← EDITED
-      .then((res) => setMeds(res.data.map((d: any) => d.medication)))
+    api.get<string[] | Paginated<{ medication: string }>>("sentiment-summary/")  // ← EDITED
+      .then((res) => {
+        const payload = res.data;
+        // ← GUARANTEE an array before mapping
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray((payload as Paginated<{ medication: string }>).results)
+            ? (payload as Paginated<{ medication: string }>).results
+            : [];
+        setMeds(list.map((d) => d.medication));                                 // ← EDITED
+      })
       .catch(console.error);
   }, []);
 
@@ -32,12 +48,18 @@ const WordCloudView: React.FC = () => {
     }
     const med = opt.value;
     setSelectedMed(med);
-    // axios
-    //   .get(`/api/wordcloud/?med=${encodeURIComponent(med)}`)
-    api.get(`wordcloud/?med=${encodeURIComponent(med)}`)  // ← EDITED
+
+    api
+      .get<WordFreq[] | Paginated<WordFreq>>(`wordcloud/?med=${encodeURIComponent(med)}`)  // ← EDITED
       .then((res) => {
-        // API returns { text: string, value: number }[]
-        setWords(res.data);
+        const payload = res.data;
+        // ← GUARANTEE an array before setting
+        const arr = Array.isArray(payload)
+          ? payload
+          : Array.isArray((payload as Paginated<WordFreq>).results)
+            ? (payload as Paginated<WordFreq>).results
+            : [];
+        setWords(arr);                                                                     // ← EDITED
       })
       .catch(console.error);
   };
@@ -84,4 +106,3 @@ const WordCloudView: React.FC = () => {
 };
 
 export default WordCloudView;
-

@@ -11,6 +11,14 @@ interface Med {
   prescribed_on: string;
 }
 
+// ← EDIT: pagination wrapper for DRF
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export default function Medications() {
   const [list, setList] = useState<Med[]>([]);
   // ─── Add‑form state
@@ -28,7 +36,15 @@ export default function Medications() {
   const [editDate, setEditDate] = useState<string>(today);
 
   const fetchMeds = () =>
-    API.get<Med[]>("medicationlogs/").then((res) => setList(res.data));
+    // ← EDIT: allow either Med[] or Paginated<Med>
+    API.get<Med[] | Paginated<Med>>("medicationlogs/").then((res) => {
+      const data = res.data;
+      const meds: Med[] = Array.isArray(data)
+        ? data
+        : // if paginated, pull out .results
+          data.results ?? [];
+      setList(meds);
+    });
 
   useEffect(() => {
     fetchMeds();
@@ -199,5 +215,3 @@ export default function Medications() {
     </div>
   );
 }
-
-

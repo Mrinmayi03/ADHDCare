@@ -1,3 +1,4 @@
+// src/pages/Tasks.tsx
 import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 
@@ -7,6 +8,14 @@ interface Task {
   notes: string;
   priority: "low" | "medium" | "urgent";
   is_completed: boolean;
+}
+
+// pagination wrapper (you already added this)
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 export default function Tasks() {
@@ -22,11 +31,17 @@ export default function Tasks() {
   // edit‑mode state (per‑field)
   const [editTitle, setEditTitle] = useState("");
   const [editNotes, setEditNotes] = useState("");
-  const [editPriority, setEditPriority] = useState<"low" | "medium" | "urgent">("low");
+  const [editPriority, setEditPriority] =
+    useState<"low" | "medium" | "urgent">("low");
   const [editIsCompleted, setEditIsCompleted] = useState<boolean>(false);
 
   const fetchTasks = () =>
-    API.get<Task[]>("tasks/").then((res) => setTasks(res.data));
+    API.get<Task[] | Paginated<Task>>("tasks/").then((res) => {
+      const list: Task[] = Array.isArray(res.data)
+        ? res.data
+        : res.data.results ?? [];
+      setTasks(list);
+    });
 
   useEffect(() => {
     fetchTasks();
@@ -56,6 +71,7 @@ export default function Tasks() {
 
       {/* ─── Add Form ────────────────────────────────────────── */}
       <div className="bg-white rounded-lg shadow p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        {/* ... your existing add-form inputs untouched ... */}
         <div>
           <label className="block text-sm font-medium">Title</label>
           <input
@@ -86,7 +102,6 @@ export default function Tasks() {
             <option value="medium">Medium</option>
             <option value="urgent">Urgent</option>
           </select>
-
           <label className="mt-2 flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
@@ -108,12 +123,13 @@ export default function Tasks() {
 
       {/* ─── Task List & Inline Edit ───────────────────────── */}
       <div className="space-y-4">
-        {tasks.map((t) =>
+        {tasks.map((t) => (
           editingId === t.id ? (
             <div
               key={t.id}
               className="bg-yellow-50 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0"
             >
+              {/* … your existing inline‐edit JSX … */}
               <div className="flex-1 space-y-2">
                 <input
                   className="w-full border rounded px-3 py-2"
@@ -153,10 +169,10 @@ export default function Tasks() {
                 <button
                   onClick={() =>
                     API.patch(`tasks/${t.id}/`, {
-                      title:        editTitle,
-                      notes:        editNotes,
-                      priority:     editPriority,
-                      is_completed: editIsCompleted,
+                      title: t.title,
+                      notes: t.notes,
+                      priority: t.priority,
+                      is_completed: t.is_completed,
                     }).then(() => {
                       setEditingId(null);
                       fetchTasks();
@@ -179,6 +195,7 @@ export default function Tasks() {
               key={t.id}
               className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between"
             >
+              {/* … your existing display JSX … */}
               <div>
                 <p className="font-semibold">{t.title}</p>
                 <p className="text-sm text-gray-600">{t.notes}</p>
@@ -214,9 +231,11 @@ export default function Tasks() {
               </div>
             </div>
           )
-        )}
+        ))}
       </div>
     </div>
-);
+  );
 }
+
+
 

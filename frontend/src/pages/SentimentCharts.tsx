@@ -1,7 +1,7 @@
 // src/pages/SentimentCharts.tsx
 import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
-import api from '../api/axios';                                         // ← EDITED
+import api from '../api/axios';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line, CartesianGrid, ReferenceLine
@@ -14,20 +14,46 @@ interface SentimentEntry {
   negative: number;
 }
 
+// If you ever do hit DRF pagination, results will live here:
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 const SentimentCharts: React.FC = () => {
   const [data, setData] = useState<SentimentEntry[]>([]);
   const [selectedMeds, setSelectedMeds] = useState<string[]>([]);
-  const [fullCSV, setFullCSV] = useState<any[]>([]); // for trend chart
+  const [fullCSV, setFullCSV] = useState<any[]>([]);
 
   useEffect(() => {
-    // axios.get('/api/sentiment-summary/')
-    api.get('sentiment-summary/')                       // ← EDITED
-      .then(res => setData(res.data))
+    api
+      .get<SentimentEntry[] | Paginated<SentimentEntry>>('sentiment-summary/')
+      .then(res => {
+        const payload = res.data;
+        // ← GUARANTEE an array, even if payload.results is missing
+        const arr: SentimentEntry[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray((payload as Paginated<SentimentEntry>).results)
+            ? (payload as Paginated<SentimentEntry>).results
+            : [];                                                        // ← EDITED
+        setData(arr);
+      })
       .catch(err => console.error(err));
 
-    // axios.get('/api/sentiment-raw/')
-    api.get('sentiment-raw/')                            // ← EDITED
-      .then(res => setFullCSV(res.data))
+    api
+      .get<any[] | Paginated<any>>('sentiment-raw/')
+      .then(res => {
+        const payload = res.data;
+        // ← GUARANTEE an array here too
+        const arr: any[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray((payload as Paginated<any>).results)
+            ? (payload as Paginated<any>).results
+            : [];                                                        // ← EDITED
+        setFullCSV(arr);
+      })
       .catch(err => console.warn("Trend data not found yet."));
   }, []);
 
@@ -58,7 +84,9 @@ const SentimentCharts: React.FC = () => {
       const obj: any = { batch: i / 40 + 1 };
       selectedMeds.forEach(med => {
         const slice = trendMap[med].slice(i, i + 40);
-        obj[med] = slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
+        obj[med] = slice.length
+          ? slice.reduce((a, b) => a + b, 0) / slice.length
+          : null;
       });
       result.push(obj);
     }
@@ -80,7 +108,9 @@ const SentimentCharts: React.FC = () => {
         </BarChart>
       </ResponsiveContainer>
 
-      <h3 className="text-xl font-semibold mt-8 mb-2">Compare Review Trends Between Medications</h3>
+      <h3 className="text-xl font-semibold mt-8 mb-2">
+        Compare Review Trends Between Medications
+      </h3>
       <Select
         isMulti
         options={medicationOptions}
@@ -93,8 +123,22 @@ const SentimentCharts: React.FC = () => {
         <ResponsiveContainer width="100%" height={320}>
           <LineChart data={getTrendData()}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="batch" label={{ value: "Review Batch", position: "insideBottomRight", offset: -5 }} />
-            <YAxis domain={[-1, 1]} label={{ value: "Avg Sentiment", angle: -90, position: "insideLeft" }} />
+            <XAxis
+              dataKey="batch"
+              label={{
+                value: "Review Batch",
+                position: "insideBottomRight",
+                offset: -5,
+              }}
+            />
+            <YAxis
+              domain={[-1, 1]}
+              label={{
+                value: "Avg Sentiment",
+                angle: -90,
+                position: "insideLeft",
+              }}
+            />
             <Tooltip />
             <Legend />
             <ReferenceLine y={0} stroke="#999" strokeDasharray="3 3" />
@@ -116,4 +160,3 @@ const SentimentCharts: React.FC = () => {
 };
 
 export default SentimentCharts;
-

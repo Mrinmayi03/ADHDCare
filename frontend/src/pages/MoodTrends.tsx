@@ -1,3 +1,4 @@
+// src/pages/MoodTrends.tsx
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { Line } from 'react-chartjs-2';
@@ -41,6 +42,14 @@ interface MoodLog {
   recorded_at: string;
 }
 
+// ← EDIT: pagination wrapper for DRF
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 const MoodTrends: React.FC = () => {
   const [logs, setLogs] = useState<MoodLog[]>([]);
   const [range, setRange] = useState<'week' | 'month'>('week');
@@ -50,16 +59,21 @@ const MoodTrends: React.FC = () => {
   }, []);
 
   const fetchLogs = async () => {
-    const response = await api.get('/moodlogs/');
-    setLogs(response.data);
+    const response = await api.get<MoodLog[] | Paginated<MoodLog>>('/moodlogs/');
+    const data = response.data;
+    const arr = Array.isArray(data) 
+      ? data 
+      : // ← EDIT: unwrap .results if paginated
+        data.results ?? [];
+    setLogs(arr);
   };
 
   const formatDateLocal = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`; // returns YYYY-MM-DD in local time
-};
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`; // returns YYYY-MM-DD in local time
+  };
 
   // Group mood logs and average them
   const getAveragedData = () => {
@@ -143,3 +157,4 @@ const MoodTrends: React.FC = () => {
 };
 
 export default MoodTrends;
+

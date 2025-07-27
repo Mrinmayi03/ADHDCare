@@ -24,6 +24,14 @@ const MOOD_OPTIONS: { value: string; label: string }[] = [
   { value: "Angry",     label: "😡 Angry" },
 ];
 
+// ← EDIT: pagination wrapper for DRF
+interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export default function MoodLogs() {
   const [logs, setLogs]               = useState<MoodLog[]>([]);
   const [mood, setMood]               = useState(MOOD_OPTIONS[0].value);
@@ -35,9 +43,17 @@ export default function MoodLogs() {
   const [editDateTime, setEditDateTime] = useState("");
 
   const fetchLogs = () =>
-    // axios.get<MoodLog[]>("/api/moodlogs/")
-    api.get<MoodLog[]>("moodlogs/")                                  // ← EDITED
-      .then((res) => setLogs(res.data));
+    // ← EDIT: allow either a plain array or paginated payload
+    api
+      .get<MoodLog[] | Paginated<MoodLog>>("moodlogs/")
+      .then((res) => {
+        const data = res.data;
+        const list: MoodLog[] = Array.isArray(data)
+          ? data
+          : // if paginated, extract .results
+            data.results ?? [];
+        setLogs(list);
+      });
 
   useEffect(() => {
     fetchLogs();
