@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Task(models.Model):
     PRIORITY_CHOICES = [
@@ -7,6 +8,11 @@ class Task(models.Model):
         ('high', 'High'),
         ('urgent', 'Urgent'),
     ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True,
+                             related_name="tasks")
     title = models.CharField(max_length=200)
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -23,6 +29,11 @@ class MedicationLog(models.Model):
     dose_mg = models.FloatField()
     brand_name = models.CharField(max_length=100)
     prescribed_on = models.DateField()
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True,
+                             related_name="medications")
 
     def __str__(self):
         return f"{self.name} ({self.dose_mg}mg)"
@@ -45,6 +56,11 @@ class MoodLog(models.Model):
     mood = models.CharField(max_length=20, choices=MOOD_CHOICES)
     note = models.TextField(blank=True)
     recorded_at = models.DateTimeField(null=True, blank=True)  # <-- editable field
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True,
+                             related_name="mood_logs")
 
     def __str__(self):
         return f"{self.mood} at {self.recorded_at.strftime('%Y-%m-%d %H:%M') if self.recorded_at else 'No Date'}"

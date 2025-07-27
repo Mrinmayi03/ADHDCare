@@ -27,7 +27,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
       <div className="text-center mb-8">
         <h1 className="text-5xl text-pink-700 font-bold">
-            ⚡ NeuroNest
+            ⚡ SteadyBloom
         </h1>
         <p className="mt-8 text-lg text-orange-600 max-w-lg text-center mt-8">
           Your personalized ADHD companion:  

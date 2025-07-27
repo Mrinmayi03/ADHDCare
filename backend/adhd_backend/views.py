@@ -15,11 +15,21 @@ from .serializers import TaskSerializer, MedicationLogSerializer, MoodLogSeriali
 # Add to the top
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions, viewsets
+
+
 import csv
 from collections import Counter
 import re
 from django.conf import settings
 import os
+
+class IsOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
+    
 
 # API: Sentiment Summary for Bar Chart
 @api_view(['GET'])
@@ -62,13 +72,40 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all().order_by('-created_at')
     serializer_class = TaskSerializer
 
+    permission_classes = [IsAuthenticated, IsOwner]
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        return Task.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):                  # ◀️ auto‑assign user on create
+        serializer.save(user=self.request.user)
+
 class MedicationLogViewSet(viewsets.ModelViewSet):
     queryset = MedicationLog.objects.all().order_by('-taken_at')
     serializer_class = MedicationLogSerializer
 
+    permission_classes = [IsAuthenticated, IsOwner]
+    serializer_class = MedicationLogSerializer
+
+    def get_queryset(self):
+        return MedicationLog.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):                  # ◀️ auto‑assign user on create
+        serializer.save(user=self.request.user)
+
 class MoodLogViewSet(viewsets.ModelViewSet):
     queryset = MoodLog.objects.all().order_by('-recorded_at')
     serializer_class = MoodLogSerializer
+
+    permission_classes = [IsAuthenticated, IsOwner]
+    serializer_class = MoodLogSerializer
+
+    def get_queryset(self):
+        return MoodLog.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):                  # ◀️ auto‑assign user on create
+        serializer.save(user=self.request.user)
 
 
 # -------------- Sentiment summary you already have --------------
