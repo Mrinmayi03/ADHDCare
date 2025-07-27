@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api/axios";
 
 interface Med {
   id: number;
   name: string;
-  taken_at: string;
+  taken_at: string;      // read‑only
   dose_mg: number;
   brand_name: string;
   prescribed_on: string;
@@ -12,41 +12,35 @@ interface Med {
 
 export default function Medications() {
   const [list, setList] = useState<Med[]>([]);
-  // add‐form state
   const [name, setName] = useState("");
   const [dose_mg, setDose] = useState<number>(0);
   const [brand_name, setBrand] = useState("");
   const today = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState<string>(today);
 
-  // edit state
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editDose, setEditDose] = useState<number>(0);
-  const [editBrand, setEditBrand] = useState("");
-  const [editDate, setEditDate] = useState<string>(today);
-
   const fetchMeds = () =>
-    axios
-      .get<Med[]>("/api/medicationlogs/")
-      .then((res) => setList(res.data));
+    API.get<Med[]>("/api/medicationlogs/")
+      .then((res) => setList(res.data))
+      .catch((e) => console.error("Failed to fetch meds:", e));
 
   useEffect(() => {
     fetchMeds();
   }, []);
 
   const handleAdd = () => {
-    axios
-      .post("/api/medicationlogs/", {
-        name,
-        dose_mg,
-        brand_name,
-        prescribed_on: date,
-      })
+    API.post("/api/medicationlogs/", {
+      name,
+      dose_mg,
+      brand_name,
+      prescribed_on: date,
+    })
       .then(fetchMeds)
       .catch((err) => {
-        console.error(err.response?.data || err);
-        alert("Failed to save medication.");
+        console.error("Validation errors:", err.response?.data);
+        alert(
+          "Failed to save medication:\n" +
+            JSON.stringify(err.response?.data, null, 2)
+        );
       });
   };
 
@@ -98,104 +92,37 @@ export default function Medications() {
         </div>
       </div>
 
-      {/* ── List & Inline Edit ────────────────────────── */}
+      {/* ── List ───────────────────────────── */}
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        {list.map((m) =>
-          editingId === m.id ? (
-            <div
-              key={m.id}
-              className="bg-yellow-50 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0"
-            >
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input
-                  className="border rounded px-3 py-2"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                />
-                <input
-                  type="number"
-                  className="border rounded px-3 py-2"
-                  value={editDose}
-                  onChange={(e) => setEditDose(+e.target.value)}
-                />
-                <input
-                  className="border rounded px-3 py-2"
-                  value={editBrand}
-                  onChange={(e) => setEditBrand(e.target.value)}
-                />
-                <input
-                  type="date"
-                  className="border rounded px-3 py-2"
-                  value={editDate}
-                  onChange={(e) => setEditDate(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col md:flex-row gap-2">
-                <button
-                  onClick={() =>
-                    axios
-                      .patch(`/api/medicationlogs/${m.id}/`, {
-                        name:           editName,
-                        dose_mg:        editDose,
-                        brand_name:     editBrand,
-                        prescribed_on:  editDate,
-                      })
-                      .then(() => {
-                        setEditingId(null);
-                        fetchMeds();
-                      })
-                  }
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingId(null)}
-                  className="border px-4 py-2 rounded hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-              </div>
+        {list.map((m) => (
+          <div
+            key={m.id}
+            className="flex flex-col md:flex-row md:items-center justify-between"
+          >
+            <div>
+              <p>
+                <span className="font-semibold">{m.name}</span> ({m.dose_mg}mg) –{" "}
+                {m.brand_name}
+              </p>
+              <p className="text-xs text-gray-500">
+                Prescribed on {new Date(m.prescribed_on).toLocaleDateString()}
+              </p>
             </div>
-          ) : (
-            <div
-              key={m.id}
-              className="flex flex-col md:flex-row md:items-center justify-between"
-            >
-              <div>
-                <p className="font-semibold">
-                  {m.name} ({m.dose_mg}mg) – {m.brand_name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Prescribed on {new Date(m.prescribed_on).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="mt-4 md:mt-0 space-x-2">
-                <button
-                  onClick={() => {
-                    setEditingId(m.id);
-                    setEditName(m.name);
-                    setEditDose(m.dose_mg);
-                    setEditBrand(m.brand_name);
-                    setEditDate(m.prescribed_on);
-                  }}
-                  className="px-4 py-1 border rounded hover:bg-gray-50"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() =>
-                    axios.delete(`/api/medicationlogs/${m.id}/`).then(fetchMeds)
-                  }
-                  className="px-4 py-1 border rounded hover:bg-gray-50"
-                >
-                  Delete
-                </button>
-              </div>
+            <div className="mt-4 md:mt-0 space-x-2">
+              <button className="px-4 py-1 border rounded hover:bg-gray-50">
+                Edit
+              </button>
+              <button
+                onClick={() => API.delete(`/api/medicationlogs/${m.id}/`).then(fetchMeds)}
+                className="px-4 py-1 border rounded hover:bg-gray-50"
+              >
+                Delete
+              </button>
             </div>
-          )
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+

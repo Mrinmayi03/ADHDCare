@@ -1,6 +1,5 @@
-// src/pages/Tasks.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api/axios";
 
 interface Task {
   id: number;
@@ -20,36 +19,32 @@ export default function Tasks() {
   const [priority, setPriority] = useState<"low" | "medium" | "urgent">("low");
   const [completed, setCompleted] = useState<boolean>(false);
 
-  // edit‐mode state (per‐field)
+  // edit‑mode state (per‑field)
   const [editTitle, setEditTitle] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [editPriority, setEditPriority] = useState<"low" | "medium" | "urgent">("low");
   const [editIsCompleted, setEditIsCompleted] = useState<boolean>(false);
 
   const fetchTasks = () =>
-    axios
-      .get<Task[]>("/api/tasks/")
-      .then((res) => setTasks(res.data));
+    API.get<Task[]>("/api/tasks/").then((res) => setTasks(res.data));
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const handleAdd = () => {
-    axios
-      .post("/api/tasks/", {
-        title,
-        notes,
-        priority,
-        is_completed: completed,
-      })
-      .then(() => {
-        setTitle("");
-        setNotes("");
-        setPriority("low");
-        setCompleted(false);
-        fetchTasks();
-      });
+    API.post("/api/tasks/", {
+      title,
+      notes,
+      priority,
+      is_completed: completed,
+    }).then(() => {
+      setTitle("");
+      setNotes("");
+      setPriority("low");
+      setCompleted(false);
+      fetchTasks();
+    });
   };
 
   return (
@@ -120,35 +115,30 @@ export default function Tasks() {
               className="bg-yellow-50 rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0"
             >
               <div className="flex-1 space-y-2">
-                {/* Title */}
                 <input
                   className="w-full border rounded px-3 py-2"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                 />
-
-                {/* Notes */}
                 <textarea
                   className="w-full border rounded px-3 py-2"
                   rows={2}
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
                 />
-
-                {/* Priority */}
                 <select
                   className="w-full border rounded px-3 py-2"
                   value={editPriority}
                   onChange={(e) =>
-                    setEditPriority(e.target.value as "low" | "medium" | "urgent")
+                    setEditPriority(
+                      e.target.value as "low" | "medium" | "urgent"
+                    )
                   }
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="urgent">Urgent</option>
                 </select>
-
-                {/* Completed (fully controlled!) */}
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -159,21 +149,18 @@ export default function Tasks() {
                 </label>
               </div>
 
-              {/* Save / Cancel */}
               <div className="flex flex-col md:flex-row gap-2">
                 <button
                   onClick={() =>
-                    axios
-                      .patch(`/api/tasks/${t.id}/`, {
-                        title:        editTitle,
-                        notes:        editNotes,
-                        priority:     editPriority,
-                        is_completed: editIsCompleted,
-                      })
-                      .then(() => {
-                        setEditingId(null);
-                        fetchTasks();
-                      })
+                    API.patch(`/api/tasks/${t.id}/`, {
+                      title:        editTitle,
+                      notes:        editNotes,
+                      priority:     editPriority,
+                      is_completed: editIsCompleted,
+                    }).then(() => {
+                      setEditingId(null);
+                      fetchTasks();
+                    })
                   }
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                 >
@@ -208,7 +195,6 @@ export default function Tasks() {
               <div className="mt-4 md:mt-0 space-x-2">
                 <button
                   onClick={() => {
-                    // prime the edit‐form with current values
                     setEditingId(t.id);
                     setEditTitle(t.title);
                     setEditNotes(t.notes);
@@ -220,9 +206,7 @@ export default function Tasks() {
                   Edit
                 </button>
                 <button
-                  onClick={() =>
-                    axios.delete(`/api/tasks/${t.id}/`).then(fetchTasks)
-                  }
+                  onClick={() => API.delete(`/api/tasks/${t.id}/`).then(fetchTasks)}
                   className="px-4 py-1 border rounded hover:bg-gray-50"
                 >
                   Delete
@@ -233,5 +217,6 @@ export default function Tasks() {
         )}
       </div>
     </div>
-  );
+);
 }
+
