@@ -13,7 +13,7 @@ export default function Login() {
       e.preventDefault();
       try {
         await login(u, p);
-        nav('/tasks');
+        nav('tasks/');
       } catch {
         alert('Invalid creds');
       }
