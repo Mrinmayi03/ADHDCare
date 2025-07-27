@@ -26,7 +26,7 @@ export default function Tasks() {
   const [editIsCompleted, setEditIsCompleted] = useState<boolean>(false);
 
   const fetchTasks = () =>
-    API.get<Task[]>("/api/tasks/").then((res) => setTasks(res.data));
+    API.get<Task[]>("tasks/").then((res) => setTasks(res.data));
 
   useEffect(() => {
     fetchTasks();
@@ -152,7 +152,7 @@ export default function Tasks() {
               <div className="flex flex-col md:flex-row gap-2">
                 <button
                   onClick={() =>
-                    API.patch(`/api/tasks/${t.id}/`, {
+                    API.patch(`tasks/${t.id}/`, {
                       title:        editTitle,
                       notes:        editNotes,
                       priority:     editPriority,
