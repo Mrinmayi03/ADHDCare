@@ -1,0 +1,14 @@
+# netlify.toml
+[build]
+  # tell Netlify to cd into the frontend folder first
+  base    = "frontend"
+  # run your install + build there
+  command = "npm install && npm run build"
+  # then publish the generated dist/ folder
+  publish = "frontend/dist"
+
+# React Router single‐page‐app fallback:
+[[redirects]]
+  from     = "/*"
+  to       = "/index.html"
+  status   = 200
