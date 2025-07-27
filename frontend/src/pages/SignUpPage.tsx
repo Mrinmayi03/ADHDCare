@@ -12,9 +12,9 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
     try {
-      await api.post('/api/register/', { username, password });
+      await api.post('register/', { username, password });
       // on success, go to login
-      navigate('/api/login');
+      navigate('login');
     } catch (e: any) {
       setError(
         e.response?.data?.error ||
