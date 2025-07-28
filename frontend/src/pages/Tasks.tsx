@@ -169,10 +169,10 @@ export default function Tasks() {
                 <button
                   onClick={() =>
                     API.patch(`tasks/${t.id}/`, {
-                      title: t.title,
-                      notes: t.notes,
-                      priority: t.priority,
-                      is_completed: t.is_completed,
+                      title:editTitle,
+                      notes: editNotes,
+                      priority: editPriority,
+                      is_completed: editIsCompleted,
                     }).then(() => {
                       setEditingId(null);
                       fetchTasks();
