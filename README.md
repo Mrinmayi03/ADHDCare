@@ -1,4 +1,4 @@
-# STEADYBLOOM
+# [STEADYBLOOM
 
 A full-stack web application designed to help individuals manage their ADHD (Attention Deficit Hyperactivity Disorder) by tracking tasks, moods, medications, and sentiment from user feedback. It combines a Django REST API with JWT‑based authentication and a modern React/TypeScript front end, enriched with data‑science–driven visualizations (word clouds, sentiment charts, mood trends).
 
@@ -133,7 +133,7 @@ Sign Up for a new account.
 
 Log In to receive your JWT and unlock your dashboard.
 
-Navigate via the top‑nav to add tasks, mood logs, and medications.
+Navigate via the top‑nav to add tasks, mood logs, and medications.](https://steadybloom.netlify.app/)
 
 Explore the “Sentiment” and “Word Cloud” tabs for insights on feedback data.
 
