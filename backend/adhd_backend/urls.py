@@ -9,6 +9,10 @@ from .views import (
     wordcloud_data,
     register,
 )
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = DefaultRouter()
 router.register(r'tasks', TaskViewSet)
@@ -20,5 +24,7 @@ urlpatterns = [
     path('register/' , register),
     path('sentiment-summary/', sentiment_summary),       # bar chart
     path('sentiment-raw/', sentiment_csv_json),          # full CSV as JSON
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path('wordcloud/', wordcloud_data),
 ]
